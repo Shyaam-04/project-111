@@ -1,0 +1,61 @@
+import random
+import statistics
+import pandas as pd
+import plotly.figure_factory as ff
+import plotly.graph_objects as go
+
+df = pd.read_csv("medium_data.csv")
+data = df["reading_time"].tolist()
+#print(data)
+pop_mean = statistics.mean(data)
+
+pop_sd = statistics.stdev(data)
+
+dataset = []
+sample_data = []
+for j in range(0,100):
+    for i in range(0,30):
+        random_index = random.randint(0,len(data)-1)
+        value = data[random_index]
+        dataset.append(value)
+    mean = statistics.mean(dataset)
+    sample_data.append(mean)
+
+sample_data_mean = statistics.mean(sample_data)
+sample_data_sd = statistics.stdev(sample_data)
+
+
+#print("population mean = "+str(pop_mean))
+print("Sampling Mean = "+str(sample_data_mean))
+print("Sampling Standard Deviation = "+str(sample_data_sd))
+
+first_sd_st,first_sd_end = sample_data_mean - sample_data_sd,sample_data_mean+sample_data_sd
+second_sd_st,second_sd_end = sample_data_mean - (2*sample_data_sd), sample_data_mean + (2*sample_data_sd)
+third_sd_st,third_sd_end = sample_data_mean - (3*sample_data_sd),sample_data_mean + (3*sample_data_sd)
+
+#sample_2.csv
+new_df = pd.read_csv("sample_2.csv")
+new_df_data = new_df["reading_time"].tolist()
+new_sample_mean = statistics.mean(new_df_data)
+print("New sample mean = "+str(new_sample_mean))
+
+#z_score
+z_score = (new_sample_mean - sample_data_mean)/sample_data_sd
+print("Z Score = "+str(z_score))
+
+
+
+
+fig = ff.create_distplot([sample_data],["Means of sample data"],show_hist = False)
+fig.add_trace(go.Scatter(x = [sample_data_mean,sample_data_mean],y = [0,8],mode = "lines",name = "Mean of sample data"))
+fig.add_trace(go.Scatter(x = [first_sd_st,first_sd_st],y = [0,8],mode = "lines",name = " Starting of First Standard Deviation"))
+fig.add_trace(go.Scatter(x = [first_sd_end,first_sd_end],y = [0,8],mode = "lines",name = "Ending of First Standard Deviation"))
+fig.add_trace(go.Scatter(x = [second_sd_st,second_sd_st],y = [0,8],mode = "lines",name = "Start of Second Standard Deviation"))
+fig.add_trace(go.Scatter(x = [second_sd_end,second_sd_end],y = [0,8],mode = "lines",name = "End of second standard deviation"))
+fig.add_trace(go.Scatter(x = [third_sd_st,third_sd_st],y = [0,8],mode = "lines",name = "Start of third standard deviation"))
+fig.add_trace(go.Scatter(x = [third_sd_end,third_sd_end],y = [0,8],mode = "lines",name = "End of third standard deviation"))
+fig.add_trace(go.Scatter(x = [new_sample_mean,new_sample_mean],y = [0,8],mode = "lines",name = "New sample mean"))
+fig.show()
+
+
+
